@@ -17,7 +17,7 @@ Download and Install Browsers
 -Allow users to download and install various web browsers directly.
 
 
-Tree:-
+project status Tree :-
 
     main/
     │
@@ -33,3 +33,23 @@ Tree:-
     ├── ...../
     |
     └── main.py(run softwer)
+
+
+project file detals Tree :-
+
+    main/
+    │
+    ├── module/ ( add all modiule)
+    │   └── UI/ (add all UI )
+    │       └── password_generator.py - 
+    |         └── systeam_password.py - 
+    |         └── ID_transfar.py - 
+    |         └── bookmart_transfar.py - 
+    |         └── browser_setting_transfar.py -
+    |         └── browser_install.py - 
+    |         └── main_window.py - 
+    ├── ...../ 
+    |
+    └── main.py(run softwer)
+
+
