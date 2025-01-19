@@ -1,8 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 import random
-
-password_list = []
+import sqlite3
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -10,227 +10,192 @@ class Ui_MainWindow(object):
         MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
+        # Database setup
+        self.conn = sqlite3.connect('passwords.db')
+        self.create_table()
+
+        # Sidebar
         self.sidebar = QtWidgets.QFrame(self.centralwidget)
-        self.sidebar.setGeometry(QtCore.QRect(9, 9, 121, 581))
         self.sidebar.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.sidebar.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.sidebar.setFrameShadow(QtWidgets.QFrame.Raised)
         self.sidebar.setObjectName("sidebar")
-        self.passkeeper_btn = QtWidgets.QPushButton(self.sidebar)
-        self.passkeeper_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
-        self.passkeeper_btn.setGeometry(QtCore.QRect(10, 50, 101, 23))
-        self.passkeeper_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: None;\n"
-"")
-        self.passkeeper_btn.setObjectName("passkeeper_btn")
-        self.passgenarator_btn = QtWidgets.QPushButton(self.sidebar)
-        self.passgenarator_btn.setGeometry(QtCore.QRect(10, 110, 101, 23))
-        self.passgenarator_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
-        self.passgenarator_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: None;")
-        self.passgenarator_btn.setObjectName("passgenarator_btn")
-        self.viewpass_btn = QtWidgets.QPushButton(self.sidebar)
-        self.viewpass_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
-        self.viewpass_btn.setGeometry(QtCore.QRect(10, 180, 101, 23))
-        self.viewpass_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: None;")
-        self.viewpass_btn.setObjectName("viewpass_btn")
-        self.settings_btn = QtWidgets.QPushButton(self.sidebar)
-        self.settings_btn.setGeometry(QtCore.QRect(10, 540, 101, 23))
-        self.settings_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
-        self.settings_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: None;")
-        self.settings_btn.setObjectName("settings_btn")
+        self.sidebar_layout = QVBoxLayout(self.sidebar)
+        self.sidebar_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Sidebar Buttons with Icons
+        self.passkeeper_btn = QPushButton("Password Keeper", self.sidebar)
+        self.passgenarator_btn = QPushButton("Password Generator", self.sidebar)
+        self.viewpass_btn = QPushButton("View Passwords", self.sidebar)
+        self.settings_btn = QPushButton("Settings", self.sidebar)
+
+        # Add icons to buttons
+        self.passkeeper_btn.setIcon(QIcon("icons/keeper.png"))
+        self.passgenarator_btn.setIcon(QIcon("icons/generator.png"))
+        self.viewpass_btn.setIcon(QIcon("icons/view.png"))
+        self.settings_btn.setIcon(QIcon("icons/settings.png"))
+
+        # Add buttons to sidebar layout
+        for button in [self.passkeeper_btn, self.passgenarator_btn, self.viewpass_btn, self.settings_btn]:
+            button.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(0, 123, 255); border: None; border-radius: 5px; padding: 10px;")
+            self.sidebar_layout.addWidget(button)
+
+        self.sidebar_layout.addStretch()  # Push buttons to the top
+
+        # Stacked Widget
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
-        self.stackedWidget.setGeometry(QtCore.QRect(130, 10, 641, 581))
         self.stackedWidget.setStyleSheet("background-color: rgb(245, 245, 245);")
         self.stackedWidget.setObjectName("stackedWidget")
-        self.passwordkeperpage = QtWidgets.QWidget()
-        self.passwordkeperpage.setObjectName("passwordkeperpage")
-        self.wn_label = QtWidgets.QLabel(self.passwordkeperpage)
-        self.wn_label.setGeometry(QtCore.QRect(180, 40, 211, 61))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.wn_label.setFont(font)
-        self.wn_label.setStyleSheet("color: rgb(51, 51, 51);")
-        self.wn_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.wn_label.setObjectName("wn_label")
-        self.website_name = QtWidgets.QLineEdit(self.passwordkeperpage)
-        self.website_name.setGeometry(QtCore.QRect(90, 120, 411, 31))
-        self.website_name.setStyleSheet("color: rgb(51, 51, 51);\n"
-"border: 3px solid #DDDDDD;\n"
-"border-radius: 15px;")
-        self.website_name.setObjectName("website_name")
-        self.user_name = QtWidgets.QLineEdit(self.passwordkeperpage)
-        self.user_name.setGeometry(QtCore.QRect(90, 250, 411, 31))
-        self.user_name.setStyleSheet("color: rgb(51, 51, 51);\n"
-"border: 3px solid #DDDDDD;\n"
-"border-radius: 15px;")
-        self.user_name.setObjectName("user_name")
-        self.usr_n_label = QtWidgets.QLabel(self.passwordkeperpage)
-        self.usr_n_label.setGeometry(QtCore.QRect(180, 170, 211, 61))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.usr_n_label.setFont(font)
-        self.usr_n_label.setStyleSheet("color: rgb(51, 51, 51);")
-        self.usr_n_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.usr_n_label.setObjectName("usr_n_label")
-        self.pass_label = QtWidgets.QLabel(self.passwordkeperpage)
-        self.pass_label.setGeometry(QtCore.QRect(180, 300, 211, 61))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.pass_label.setFont(font)
-        self.pass_label.setStyleSheet("color: rgb(51, 51, 51);")
-        self.pass_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.pass_label.setObjectName("pass_label")
-        self.passwords = QtWidgets.QLineEdit(self.passwordkeperpage)
-        self.passwords.setGeometry(QtCore.QRect(80, 380, 411, 31))
-        self.passwords.setStyleSheet("color: rgb(51, 51, 51);\n"
-"border: 3px solid #DDDDDD;\n"
-"border-radius: 15px;")
-        self.passwords.setObjectName("passwords")
-        self.pushButton = QtWidgets.QPushButton(self.passwordkeperpage)
-        self.pushButton.setGeometry(QtCore.QRect(240, 450, 91, 31))
-        self.pushButton.clicked.connect(self.save_password)
-        self.pushButton.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: 3px solid  rgb(0, 123, 255);\n"
-"border-radius: 15px")
-        self.pushButton.setObjectName("pushButton")
+
+        # Password Keeper Page
+        self.passwordkeperpage = self.create_password_keeper_page()
         self.stackedWidget.addWidget(self.passwordkeperpage)
-        self.passwordgenaratorpage = QtWidgets.QWidget()
-        self.passwordgenaratorpage.setObjectName("passwordgenaratorpage")
-        self.pass_length = QtWidgets.QLineEdit(self.passwordgenaratorpage)
-        self.pass_length.setGeometry(QtCore.QRect(70, 190, 181, 20))
-        self.pass_length.setObjectName("pass_length")
-        self.pass_len_label = QtWidgets.QLabel(self.passwordgenaratorpage)
-        self.pass_len_label.setGeometry(QtCore.QRect(90, 140, 201, 31))
-        self.pass_len_label.setObjectName("pass_len_label")
-        self.pass_strngth = QtWidgets.QComboBox(self.passwordgenaratorpage)
-        self.pass_strngth.setGeometry(QtCore.QRect(350, 190, 141, 22))
-        self.pass_strngth.setObjectName("pass_strngth")
-        self.pass_strngth.addItem("")
-        self.pass_strngth.addItem("")
-        self.pass_strngth.addItem("")
-        self.pass_strn_label = QtWidgets.QLabel(self.passwordgenaratorpage)
-        self.pass_strn_label.setGeometry(QtCore.QRect(340, 140, 201, 31))
-        self.pass_strn_label.setObjectName("pass_strn_label")
-        self.gnrt_pass_btn = QtWidgets.QPushButton(self.passwordgenaratorpage)
-        self.gnrt_pass_btn.setGeometry(QtCore.QRect(210, 250, 131, 23))
-        self.gnrt_pass_btn.clicked.connect(self.generate_password)
-        self.gnrt_pass_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: 3px solid rgb(0, 123, 255);\n"
-"border-radius:15px;\n"
-"\n"
-"")
-        self.gnrt_pass_btn.setObjectName("gnrt_pass_btn")
-        self.label_3 = QtWidgets.QLabel(self.passwordgenaratorpage)
-        self.label_3.setGeometry(QtCore.QRect(140, 30, 301, 61))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_3.setFont(font)
-        self.label_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_3.setObjectName("label_3")
-        self.lineEdit = QtWidgets.QLineEdit(self.passwordgenaratorpage)
-        self.lineEdit.setGeometry(QtCore.QRect(70, 410, 411, 20))
-        self.lineEdit.setObjectName("lineEdit")
-        self.label_4 = QtWidgets.QLabel(self.passwordgenaratorpage)
-        self.label_4.setGeometry(QtCore.QRect(120, 320, 301, 61))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_4.setFont(font)
-        self.label_4.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_4.setObjectName("label_4")
+
+        # Password Generator Page
+        self.passwordgenaratorpage = self.create_password_generator_page()
         self.stackedWidget.addWidget(self.passwordgenaratorpage)
-        self.pass_viewpage = QtWidgets.QWidget()
-        self.pass_viewpage.setObjectName("pass_viewpage")
-        self.header = QtWidgets.QLabel(self.pass_viewpage)
-        self.header.setGeometry(QtCore.QRect(180, 20, 231, 51))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setWeight(75)
-        self.header.setFont(font)
-        self.header.setAlignment(QtCore.Qt.AlignCenter)
-        self.header.setObjectName("header")
-        self.password_tabel = QtWidgets.QTableWidget(self.pass_viewpage)
-        self.password_tabel.setGeometry(QtCore.QRect(10, 100, 621, 441))
-        self.password_tabel.setObjectName("password_tabel")
-        self.password_tabel.setColumnCount(3)
-        self.password_tabel.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        self.password_tabel.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.password_tabel.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.password_tabel.setHorizontalHeaderItem(2, item)
-        self.pushButton_3 = QtWidgets.QPushButton(self.pass_viewpage)
-        self.pushButton_3.clicked.connect(self.refresh_table)
-        self.pushButton_3.setGeometry(QtCore.QRect(230, 550, 121, 23))
-        self.pushButton_3.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: 3ppx solid rgb(0, 123, 255);\n"
-"border-radius: 10px")
-        self.pushButton_3.setObjectName("pushButton_3")
+
+        # Password View Page
+        self.pass_viewpage = self.create_password_view_page()
         self.stackedWidget.addWidget(self.pass_viewpage)
-        self.settings = QtWidgets.QWidget()
-        self.settings.setObjectName("settings")
-        self.theme = QtWidgets.QComboBox(self.settings)
-        self.theme.setGeometry(QtCore.QRect(180, 160, 231, 31))
-        self.theme.setObjectName("theme")
-        self.theme.addItem("")
-        self.theme.addItem("")
-        self.theme.addItem("")
-        self.theme.addItem("")
-        self.theme.addItem("")
-        self.theme.addItem("")
-        self.theme_label = QtWidgets.QLabel(self.settings)
-        self.theme_label.setGeometry(QtCore.QRect(200, 80, 191, 51))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setWeight(75)
-        self.theme_label.setFont(font)
-        self.theme_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.theme_label.setObjectName("theme_label")
-        self.backup_btn = QtWidgets.QPushButton(self.settings)
-        self.backup_btn.setGeometry(QtCore.QRect(70, 290, 151, 31))
-        self.backup_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: 3px solid rgb(0, 123, 255);\n"
-"border-radius: 10px;")
-        self.backup_btn.setObjectName("backup_btn")
-        self.restr_btn = QtWidgets.QPushButton(self.settings)
-        self.restr_btn.setGeometry(QtCore.QRect(330, 290, 151, 31))
-        self.restr_btn.setStyleSheet("color: rgb(51, 51, 51);\n"
-"background-color: rgb(0, 123, 255);\n"
-"border: 3px solid rgb(0, 123, 255);\n"
-"border-radius: 10px;")
-        self.restr_btn.setObjectName("restr_btn")
-        self.pushButton_2 = QtWidgets.QPushButton(self.settings)
-        self.pushButton_2.setGeometry(QtCore.QRect(240, 210, 75, 23))
-        self.pushButton_2.setObjectName("pushButton_2")
+
+        # Settings Page
+        self.settings = self.create_settings_page()
         self.stackedWidget.addWidget(self.settings)
+
+        # Main Layout
+        main_layout = QHBoxLayout(self.centralwidget)
+        main_layout.addWidget(self.sidebar)
+        main_layout.addWidget(self.stackedWidget)
+
         MainWindow.setCentralWidget(self.centralwidget)
+
+        # Connect buttons to change pages
+        self.passkeeper_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.passgenarator_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.viewpass_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.settings_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
 
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def create_table(self):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS passwords (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                website TEXT NOT NULL,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL
+            )
+        ''')
+        self.conn.commit()
+
+    def create_password_keeper_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+
+        self.wn_label = QLabel("Website Name")
+        self.website_name = QLineEdit()
+        self.user_name = QLineEdit()
+        self.usr_n_label = QLabel("User  Name")
+        self.pass_label = QLabel("Password")
+        self.passwords = QLineEdit()
+        self.pushButton = QPushButton("Add Password")
+        self.crack_time_label = QLabel("Estimated Crack Time: ")
+
+        # Set styles
+        for widget in [self.website_name, self.user_name, self.passwords]:
+            widget.setStyleSheet("color: rgb(51, 51, 51); border: 2px solid #DDDDDD; border-radius: 5px; padding: 10px;")
+
+        self.pushButton.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(0, 123, 255); border: None; border-radius: 5px; padding: 10px;")
+        self.pushButton.clicked.connect(self.save_password)
+
+        layout.addWidget(self.wn_label)
+        layout.addWidget(self.website_name)
+        layout.addWidget(self.usr_n_label)
+        layout.addWidget(self.user_name)
+        layout.addWidget(self.pass_label)
+        layout.addWidget(self.passwords)
+        layout.addWidget(self.pushButton)
+        layout.addWidget(self.crack_time_label)
+
+        return page
+
+    def create_password_generator_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+
+        self.pass_len_label = QLabel("Password Length")
+        self.pass_length = QLineEdit()
+        self.pass_strngth = QComboBox()
+        self.pass_strngth.addItems(["Weak", "Medium", "Strong"])
+        self.pass_strn_label = QLabel("Password Strength")
+        self.gnrt_pass_btn = QPushButton("Generate Password")
+        self.lineEdit = QLineEdit()
+        self.label_4 = QLabel("Generated Password:")
+        self.crack_time_gen_label = QLabel("Estimated Crack Time: ")
+
+        # Set styles
+        for widget in [self.pass_length, self.lineEdit]:
+            widget.setStyleSheet("color: rgb(51, 51, 51); border: 2px solid #DDDDDD; border-radius: 5px; padding: 10px;")
+
+        self.gnrt_pass_btn.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(0, 123, 255); border: None; border-radius: 5px; padding: 10px;")
+        self.gnrt_pass_btn.clicked.connect(self.generate_password)
+
+        layout.addWidget(self.pass_len_label)
+        layout.addWidget(self.pass_length)
+        layout.addWidget(self.pass_strn_label)
+        layout.addWidget(self.pass_strngth)
+        layout.addWidget(self.gnrt_pass_btn)
+        layout.addWidget(self.label_4)
+        layout.addWidget(self.lineEdit)
+        layout.addWidget(self.crack_time_gen_label)
+
+        return page
+
+    def create_password_view_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+
+        self.header = QLabel("View Passwords")
+        self.password_tabel = QTableWidget()
+        self.password_tabel.setColumnCount(3)
+        self.password_tabel.setHorizontalHeaderLabels(["Website", "Username", "Password"])
+        self.password_tabel.setRowCount(0)
+
+        self.pushButton_3 = QPushButton("Refresh Table")
+        self.pushButton_3.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(0, 123, 255); border: None; border-radius: 5px; padding: 10px;")
+        self.pushButton_3.clicked.connect(self.refresh_table)
+
+        layout.addWidget(self.header)
+        layout.addWidget(self.password_tabel)
+        layout.addWidget(self.pushButton_3)
+
+        return page
+
+    def create_settings_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+
+        self.theme_label = QLabel("Theme")
+        self.theme = QComboBox()
+        self.theme.addItems(["Default", "Dark", "Elegant Blue", "Modern Purple", "Forest Green", "Sunset"])
+        self.theme.currentIndexChanged.connect(self.change_theme)
+        self.backup_btn = QPushButton("Backup Data")
+        self.restr_btn = QPushButton("Restore Data")
+
+        # Set styles
+        for button in [self.backup_btn, self.restr_btn]:
+            button.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(0, 123, 255); border: None; border-radius: 5px; padding: 10px;")
+
+        layout.addWidget(self.theme_label)
+        layout.addWidget(self.theme)
+        layout.addWidget(self.backup_btn)
+        layout.addWidget(self.restr_btn)
+
+        return page
 
     def save_password(self):
         website = self.website_name.text().strip()
@@ -238,11 +203,14 @@ class Ui_MainWindow(object):
         password = self.passwords.text().strip()
 
         if website and username and password:
-            password_list.append([website, username, password])
+            cursor = self.conn.cursor()
+            cursor.execute("INSERT INTO passwords (website, username, password) VALUES (?, ?, ?)", (website, username, password))
+            self.conn.commit()
             QMessageBox.information(self.centralwidget, "Success", "Password saved successfully!")
             self.website_name.clear()
             self.user_name.clear()
             self.passwords.clear()
+            self.update_crack_time(password)  # Update crack time for saved password
         else:
             QMessageBox.warning(self.centralwidget, "Error", "All fields are required!")
 
@@ -250,12 +218,17 @@ class Ui_MainWindow(object):
         strength = self.pass_strngth.currentText()
         password = self.create_password(strength)
         self.lineEdit.setText(password)
+        self.update_crack_time(password)  # Update crack time for generated password
 
     def create_password(self, strength):
-        length = int(self.pass_length.text())
+        length_text = self.pass_length.text().strip()
+        if not length_text:
+                QMessageBox.warning(self.centralwidget, "Error", "Password length is required!")
+                return ""
+        length = int(length_text)
         if strength == "Weak":
             chars = "abcdefghijklmnopqrstuvwxyz"
-        elif strength == "medium":
+        elif strength == "Medium":
             chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         else:
             chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
@@ -263,49 +236,102 @@ class Ui_MainWindow(object):
 
     def refresh_table(self):
         self.password_tabel.setRowCount(0)
-        for i, data in enumerate(password_list):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT website, username, password FROM passwords")
+        for i, (website, username, password) in enumerate(cursor.fetchall()):
             self.password_tabel.insertRow(i)
-            for j, field in enumerate(data):
-                self.password_tabel.setItem(i, j, QTableWidgetItem(field))
+            self.password_tabel.setItem(i, 0, QTableWidgetItem(website))
+            self.password_tabel.setItem(i, 1, QTableWidgetItem(username))
+            self.password_tabel.setItem(i, 2, QTableWidgetItem(password))
+
+    def change_theme(self):
+        theme = self.theme.currentText()
+        if theme == "Default":
+            self.set_default_theme()
+        elif theme == "Dark":
+            self.set_dark_theme()
+        elif theme == "Elegant Blue":
+            self.set_elegant_blue_theme()
+        elif theme == "Modern Purple":
+            self.set_modern_purple_theme()
+        elif theme == "Forest Green":
+            self.set_forest_green_theme()
+        elif theme == "Sunset":
+            self.set_sunset_theme()
+
+    def set_default_theme(self):
+        self.set_style("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);")
+
+    def set_dark_theme(self):
+        self.set_style("background-color: rgb(30, 30, 30); color: rgb(255, 255, 255);")
+
+    def set_elegant_blue_theme(self):
+        self.set_style("background-color: rgb(0, 123, 255); color: rgb(255, 255, 255);")
+
+    def set_modern_purple_theme(self):
+        self.set_style("background-color: rgb(128, 0, 128); color: rgb(255, 255, 255);")
+
+    def set_forest_green_theme(self):
+        self.set_style("background-color: rgb(34, 139, 34); color: rgb(255, 255, 255);")
+
+    def set_sunset_theme(self):
+        self.set_style("background-color: rgb(255, 94, 77); color: rgb(255, 255, 255);")
+
+    def set_style(self, style):
+        self.centralwidget.setStyleSheet(style)
+        self.sidebar.setStyleSheet(style)
+        for button in [self.passkeeper_btn, self.passgenarator_btn, self.viewpass_btn, self.settings_btn]:
+            button.setStyleSheet(style + "border: None; border-radius: 5px; padding: 10px;")
+        self.stackedWidget.setStyleSheet(style)
+
+    def update_crack_time(self, password):
+        crack_time = self.calculate_crack_time(password)
+        self.crack_time_label.setText(f"Estimated Crack Time: {crack_time}")
+
+    def calculate_crack_time(self, password):
+        length = len(password)
+        if password.isdigit():  # Numeric password
+            total_combinations = 10 ** length
+        else:
+            # Define character sets
+            lower = 26
+            upper = 26
+            digits = 10
+            special = 10
+
+            # Determine the character set used
+            char_set = lower  # Start with lowercase
+            if any(c.isupper() for c in password):
+                char_set += upper
+            if any(c.isdigit() for c in password):
+                char_set += digits
+            if any(c in "!@#$%^&*()" for c in password):
+                char_set += special
+
+            # Calculate total combinations
+            total_combinations = char_set ** length
+
+        # Define cracking speed (1 billion guesses per second)
+        cracking_speed = 1_000_000_000
+
+        # Calculate crack time in seconds
+        crack_time_seconds = total_combinations / cracking_speed
+
+        # Convert to more understandable units
+        if crack_time_seconds < 60:
+            return f"{crack_time_seconds:.2f} seconds"
+        elif crack_time_seconds < 3600:
+            return f"{(crack_time_seconds / 60):.2f} minutes"
+        elif crack_time_seconds < 86400:
+            return f"{(crack_time_seconds / 3600):.2f} hours"
+        elif crack_time_seconds < 31536000:
+            return f"{(crack_time_seconds / 86400):.2f} days"
+        else:
+            return f"{(crack_time_seconds / 31536000):.2f} years"
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.passkeeper_btn.setText(_translate("MainWindow", "Password Keeper"))
-        self.passgenarator_btn.setText(_translate("MainWindow", "Password genarator"))
-        self.viewpass_btn.setText(_translate("MainWindow", "view Passwords"))
-        self.settings_btn.setText(_translate("MainWindow", "Settings"))
-        self.wn_label.setText(_translate("MainWindow", "Website Name"))
-        self.usr_n_label.setText(_translate("MainWindow", "User Name"))
-        self.pass_label.setText(_translate("MainWindow", "Password"))
-        self.pushButton.setText(_translate("MainWindow", "Add Password"))
-        self.pass_len_label.setText(_translate("MainWindow", "Password length"))
-        self.pass_strngth.setItemText(0, _translate("MainWindow", "Weak"))
-        self.pass_strngth.setItemText(1, _translate("MainWindow", "medium"))
-        self.pass_strngth.setItemText(2, _translate("MainWindow", "Strong"))
-        self.pass_strn_label.setText(_translate("MainWindow", "Password strength"))
-        self.gnrt_pass_btn.setText(_translate("MainWindow", "Genarate Password"))
-        self.label_3.setText(_translate("MainWindow", "Password Genarator"))
-        self.label_4.setText(_translate("MainWindow", "Genarated Password:"))
-        self.header.setText(_translate("MainWindow", "View Password"))
-        item = self.password_tabel.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "New Column"))
-        item = self.password_tabel.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "Website"))
-        item = self.password_tabel.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "Password"))
-        self.pushButton_3.setText(_translate("MainWindow", "Refresh Table"))
-        self.theme.setItemText(0, _translate("MainWindow", "Default"))
-        self.theme.setItemText(1, _translate("MainWindow", "Dark"))
-        self.theme.setItemText(2, _translate("MainWindow", "Elegant Blue"))
-        self.theme.setItemText(3, _translate("MainWindow", "Modern Purple"))
-        self.theme.setItemText(4, _translate("MainWindow", "Forest Green"))
-        self.theme.setItemText(5, _translate("MainWindow", "Sunset"))
-        self.theme_label.setText(_translate("MainWindow", "Theme"))
-        self.backup_btn.setText(_translate("MainWindow", "BackUp Data"))
-        self.restr_btn.setText(_translate("MainWindow", "Restore Data"))
-        self.pushButton_2.setText(_translate("MainWindow", "add theme"))
-
+        MainWindow.setWindowTitle(_translate("MainWindow", "Password Manager"))
 
 if __name__ == "__main__":
     import sys
