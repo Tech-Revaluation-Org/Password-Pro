@@ -185,17 +185,39 @@ class Ui_MainWindow(object):
         self.theme.currentIndexChanged.connect(self.change_theme)
         self.backup_btn = QPushButton("Backup Data")
         self.restr_btn = QPushButton("Restore Data")
+        self.export_btn = QPushButton("Export Data")  # New button for exporting data
 
         # Set styles
-        for button in [self.backup_btn, self.restr_btn]:
+        for button in [self.backup_btn, self.restr_btn, self.export_btn]:  # Include the new button
             button.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(0, 123, 255); border: None; border-radius: 5px; padding: 10px;")
+
+        self.export_btn.clicked.connect(self.export_data)  # Connect the new button to the export_data method
 
         layout.addWidget(self.theme_label)
         layout.addWidget(self.theme)
         layout.addWidget(self.backup_btn)
         layout.addWidget(self.restr_btn)
+        layout.addWidget(self.export_btn)  # Add the new button to the layout
 
         return page
+
+    def export_data(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT website, username, password FROM passwords")
+        data = cursor.fetchall()
+
+        if not data:
+            QMessageBox.warning(self.centralwidget, "Error", "No data to export!")
+            return
+
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(self.centralwidget, "Save Data", "", "Text Files (*.txt);;All Files (*)", options=options)
+        if file_path:
+            with open(file_path, 'w') as file:
+                for website, username, password in data:
+                    file.write(f"Website: {website}\nUsername: {username}\nPassword: {password}\n\n")
+            QMessageBox.information(self.centralwidget, "Success", "Data exported successfully!")
+
 
     def save_password(self):
         website = self.website_name.text().strip()
