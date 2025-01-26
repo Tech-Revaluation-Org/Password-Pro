@@ -92,7 +92,7 @@ class Ui_MainWindow(object):
         self.download_and_install(url, filename)
 
     def download_bing_browser(self):
-        url = "https://bing.example.com/BingSetup.exe" 
+        url = "https://bing.example.com/BingSetup.exe"  # Placeholder URL
         filename = "BingSetup.exe"
         self.download_and_install(url, filename)
 
