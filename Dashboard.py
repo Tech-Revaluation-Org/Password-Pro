@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel
 from module.Windows.password_manager_window import PasswordManagerWindow
 from module.Windows.browser_downloader_window import BrowserDownloaderWindow
-from module.Windows.bookmark_transfer_window import BookmarkTransferWindow
+from module.Windows.bookmark_transfer_window import BookmarkTransferApp
+from module.UI.bookmark_transfer import BookmarkTransferApp
 from module.Windows.system_password_window import SystemPasswordWindow
 
 class Dashboard(QWidget):
@@ -41,7 +42,7 @@ class Dashboard(QWidget):
         self.bd_win.show()
 
     def open_bookmark_transfer(self):
-        self.bt_win = BookmarkTransferWindow()
+        self.bt_win = BookmarkTransferApp()
         self.bt_win.show()
 
     def open_system_passwords(self):

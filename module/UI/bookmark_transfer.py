@@ -84,9 +84,9 @@ class BookmarkTransferApp(QtWidgets.QWidget):
             self.status_label.setStyleSheet("color: red;")
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    window = BookmarkTransferApp()
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     window = BookmarkTransferApp()
+#     window.show()
+#     sys.exit(app.exec_())
